@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Farm AI Pro</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --accent1:#1DD3B0;
+  --accent2:#0A84FF;
+  --glass: rgba(255,255,255,0.06);
+  --glass-strong: rgba(255,255,255,0.12);
+}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+html,body{
+  height:100%;
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:linear-gradient(180deg,#022240 0%, #063044 60%);
+  color:#fff;
+  overflow:hidden;
+}
+body{
+  display:flex;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:280px;
+  padding:22px;
+  position:fixed;
+  left:18px;
+  top:18px;
+  bottom:18px;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  backdrop-filter: blur(8px) saturate(1.2);
+  box-shadow: 0 10px 30px rgba(2,18,36,0.6);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  z-index:1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.logo{
+  width:48px;
+  height:48px;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--accent1),var(--accent2));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  color:#012;
+  box-shadow:0 6px 18px rgba(10,132,255,0.12);
+}
+.brand h2{margin:0;font-size:18px}
+.sidebar p{margin:0;color:rgba(255,255,255,0.8)}
+.menu-items{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:6px;
+}
+.menu-items button{
+  background:transparent;
+  color:#eaf6f8;
+  border:none;
+  padding:12px 16px;
+  border-radius:10px;
+  text-align:left;
+  cursor:pointer;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  font-size:15px;
+  transition:all 0.2s ease;
+  width:100%;
+}
+.menu-items button:hover{
+  background:var(--glass-strong);
+  transform:translateX(4px);
+}
+.menu-items button.active{
+  background:linear-gradient(90deg,var(--accent1),var(--accent2));
+  color:#022;
+  box-shadow:0 6px 14px rgba(13,211,176,0.2);
+}
+.menu-items .icon{
+  width:22px;
+  height:22px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.footer-note{
+  margin-top:auto;
+  font-size:12px;
+  color:rgba(255,255,255,0.6);
+}
+
+/* MAIN CONTENT */
+.main{
+  flex:1;
+  padding:28px;
+  margin-left:340px;
+  overflow:auto;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* HERO */
+.top-hero{
+  position:relative;
+  padding:28px;
+  border-radius:14px;
+  background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  box-shadow:0 10px 30px rgba(2,18,36,0.5);
+  overflow:hidden;
+  margin-bottom:20px;
+}
+.hero-bg{
+  position:absolute;
+  inset:0;
+  opacity:0.12;
+  background:radial-gradient(circle at 10% 20%, var(--accent1), transparent 20%),
+              radial-gradient(circle at 90% 80%, var(--accent2), transparent 20%);
+  filter:blur(40px);
+  transform:scale(1.2);
+}
+.hero-content{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+.hero-text h1{margin:0;font-size:28px}
+.hero-text p{margin:6px 0 0;color:rgba(255,255,255,0.8)}
+.hero-cta{
+  margin-left:auto;
+  display:flex;
+  gap:12px;
+}
+.btn{
+  background:linear-gradient(90deg,var(--accent1),var(--accent2));
+  border:none;
+  color:#022;
+  padding:12px 20px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+  transition:all 0.2s ease;
+}
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 25px rgba(13,211,176,0.3);
+}
+.btn.secondary{
+  background:transparent;
+  color:#eaf6f8;
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+/* SECTIONS */
+.section{display:none;margin-top:20px}
+.section.active{display:block}
+
+/* CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+  margin-top:18px;
+}
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  padding:20px;
+  border-radius:14px;
+  transition:all 0.3s ease;
+}
+.card:hover{transform:translateY(-4px)}
+.value{font-size:20px;font-weight:700;margin-top:6px}
+
+/* CHART */
+.chart-wrap{
+  width:100%;
+  max-width:320px;
+  height:240px;
+  margin:20px auto;
+}
+#chart{width:100% !important;height:100% !important;border-radius:12px}
+
+/* CHAT */
+#chatContainer{
+  border-radius:12px;
+  padding:14px;
+  background:rgba(0,0,0,0.18);
+  height:300px;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:16px;
+}
+.msg{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  margin:6px 0;
+  animation:fadeIn 220ms forwards;
+}
+.avatar{
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  color:#012;
+  font-weight:700;
+  flex-shrink:0;
+}
+.avatar.user{background:linear-gradient(90deg,var(--accent1),#7fe6ca)}
+.avatar.bot{background:linear-gradient(90deg,var(--accent2),#77b8ff)}
+.bubble{
+  background:rgba(255,255,255,0.03);
+  padding:12px 16px;
+  border-radius:12px;
+  max-width:85%;
+  line-height:1.4;
+  word-wrap:break-word;
+  border:1px solid rgba(255,255,255,0.02);
+}
+.user .bubble{
+  background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+.user{align-self:flex-end}
+.bot{align-self:flex-start}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none}}
+
+/* FORM CONTROLS */
+.form-controls{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:24px 0;
+  padding:20px;
+  background:rgba(255,255,255,0.03);
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.05);
+}
+#language, #soilSelect, #climateSelect{
+  flex:1;
+  min-width:140px;
+  max-width:200px;
+  -webkit-appearance:none;
+  appearance:none;
+  background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.08);
+  padding:12px 16px;
+  border-radius:10px;
+  color:#eaf6f8;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.2s ease;
+}
+#language:focus, #soilSelect:focus, #climateSelect:focus{
+  outline:none;
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(10,132,255,0.15);
+}
+#analyzeBtn{
+  background:linear-gradient(90deg,var(--accent1),var(--accent2));
+  border:none;
+  color:#012;
+  font-size:16px;
+  padding:12px 24px;
+}
+#analyzeBtn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 25px rgba(13,211,176,0.3);
+}
+#homeControls{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin:20px 0;
+  flex-wrap:wrap;
+}
+
+/* BARS */
+.bar{
+  height:24px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.04);
+  overflow:hidden;
+  position:relative;
+  margin-top:8px;
+}
+.bar-inner{
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg,var(--accent1),var(--accent2));
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding-right:12px;
+  color:#012;
+  font-weight:700;
+  font-size:14px;
+  transition:width 2s ease;
+}
+
+/* CANVAS */
+#homeCanvas{
+  width:100%;
+  height:520px;
+  border-radius:12px;
+  margin-top:20px;
+  display:block;
+}
+
+/* MOBILE TOGGLE */
+#mobileMenuToggle{
+  display:none;
+  position:fixed;
+  top:20px;
+  left:20px;
+  z-index:2000;
+  background:linear-gradient(90deg,var(--accent1),var(--accent2));
+  border:none;
+  border-radius:12px;
+  width:56px;
+  height:56px;
+  color:#012;
+  font-size:24px;
+  cursor:pointer;
+  box-shadow:0 8px 25px rgba(13,211,176,0.3);
+}
+
+/* ===========================================
+   PERFECT MOBILE RESPONSIVE
+   =========================================== */
+@media (max-width: 880px) {
+  #mobileMenuToggle{
+    display:flex !important;
+    align-items:center;
+    justify-content:center;
+  }
+  
+  .sidebar{
+    position:fixed !important;
+    left:0 !important;
+    top:70px !important;
+    width:100% !important;
+    height:auto !important;
+    max-height:calc(100vh - 100px) !important;
+    border-radius:0 !important;
+    padding:16px !important;
+    transform:translateX(-100%) !important;
+    overflow-y:auto !important;
+    z-index:1500 !important;
+  }
+  .sidebar.mobile-open{
+    transform:translateX(0) !important;
+  }
+  
+  .main{
+    margin-left:0 !important;
+    padding:20px 16px !important;
+    padding-top:90px !important;
+    width:100% !important;
+  }
+  
+  .top-hero{padding:20px 16px !important;margin-bottom:16px}
+  .hero-content{flex-direction:column !important;text-align:center !important}
+  .hero-text h1{font-size:24px !important}
+  .hero-text p{font-size:16px !important}
+  .hero-cta{margin-left:0 !important;justify-content:center !important;width:100% !important;flex-wrap:wrap}
+  .hero-cta .btn{flex:1;min-width:140px !important;margin:4px}
+  
+  .cards{grid-template-columns:1fr !important;gap:12px !important}
+  .card{padding:16px !important}
+  
+  .form-controls{gap:8px !important;padding:16px !important;flex-direction:row;flex-wrap:wrap}
+  #soilSelect, #climateSelect, #analyzeBtn{
+    flex:1 !important;
+    min-width:120px !important;
+    padding:12px 12px !important;
+    font-size:15px !important;
+    margin:4px;
+  }
+  
+  #homeControls{gap:8px !important;margin:16px 0 !important}
+  #language{min-width:120px !important;padding:12px !important}
+  
+  .chart-wrap{height:220px !important;margin:16px auto !important}
+  #homeCanvas{height:400px !important;margin-top:16px !important}
+  #chatContainer{height:280px !important}
+  
+  @media (max-width: 480px) {
+    .main{padding:16px 12px !important;padding-top:80px !important}
+    .form-controls{flex-direction:column !important}
+    #soilSelect, #climateSelect, #analyzeBtn{width:100% !important;margin:4px 0 !important}
+    .hero-text h1{font-size:20px !important}
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE MENU BUTTON -->
+<button id="mobileMenuToggle" onclick="toggleMobileMenu()">☰</button>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="logo">SF</div>
+    <div>
+      <h2>Smart Farm AI</h2>
+      <p style="font-size:12px;margin-top:4px;">Pro • Farm Assistant</p>
+    </div>
+  </div>
+  <div class="menu-items" id="menuItems">
+    <button class="active" onclick="activateMenu(this);showSection('home');closeMobileMenu()">
+      <span class="icon">🏠</span> Home
+    </button>
+    <button onclick="activateMenu(this);showSection('soil');closeMobileMenu()">
+      <span class="icon">🌱</span> Soil Test
+    </button>
+    <button onclick="activateMenu(this);showSection('help');closeMobileMenu()">
+      <span class="icon">💬</span> Help
+    </button>
+  </div>
+  <div class="footer-note">🌾 Built for farmers — localized tips.</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <!-- HERO -->
+  <div class="top-hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 id="heroTitle">Smart Farm AI Pro</h1>
+        <p id="heroSubtitle">Practical advice for farmers — crops, soil, pests, livestock.</p>
+      </div>
+      <div class="hero-cta">
+        <button class="btn" onclick="showSection('help');document.getElementById('chatInput').focus();closeMobileMenu()" id="chatBtn">
+          Chat with AgriBot
+        </button>
+        <button class="btn secondary" onclick="showSection('soil');closeMobileMenu()" id="analyzeBtnHero">
+          Analyze Farm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME SECTION -->
+  <div id="home" class="section active">
+    <h1>Welcome to Smart Farm AI 🌱</h1>
+    <div id="homeControls">
+      <label for="language">Language:</label>
+      <select id="language" onchange="changeLanguage()">
+        <option value="en">English</option>
+        <option value="ta">தமிழ்</option>
+        <option value="hi">हिन्दी</option>
+      </select>
+    </div>
+    <canvas id="homeCanvas"></canvas>
+  </div>
+
+  <!-- SOIL SECTION -->
+  <div id="soil" class="section">
+    <h1 id="title">AI Sustainability Dashboard</h1>
+    <div class="form-controls">
+      <select id="soilSelect"></select>
+      <select id="climateSelect"></select>
+      <button id="analyzeBtn" class="btn" onclick="analyze()">Analyze Farm</button>
+    </div>
+    
+    <div class="cards">
+      <div class="card">
+        <span id="carbonLabel">Carbon Score</span>
+        <div class="bar"><div id="carbon" class="bar-inner">0</div></div>
+      </div>
+      <div class="card">
+        <span id="cropLabel">Recommended Crop</span>
+        <div class="value" id="crop">--</div>
+      </div>
+      <div class="card">
+        <span id="profitLabel">Estimated Profit</span>
+        <div class="bar"><div id="profit" class="bar-inner">0</div></div>
+      </div>
+      <div class="card">
+        <span id="riskLabel">Climate Risk</span>
+        <div class="value" id="risk">--</div>
+      </div>
+    </div>
+    
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+
+  <!-- HELP SECTION -->
+  <div id="help" class="section">
+    <h1 id="helpTitle">AgriBot Help</h1>
+    <div id="chatContainer"></div>
+    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap">
+      <input id="chatInput" type="text" placeholder="Ask about crops, soil, pests..." 
+             style="flex:1;min-width:200px;padding:12px;border-radius:10px;border:none;background:rgba(255,255,255,0.05);color:#fff;border:1px solid rgba(255,255,255,0.1)" />
+      <button id="chatSend" class="btn">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== MOBILE MENU ==========
+function toggleMobileMenu(){
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+}
+function closeMobileMenu(){
+  document.getElementById('sidebar').classList.remove('mobile-open');
+}
+document.addEventListener('click', function(event){
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('mobileMenuToggle');
+  if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+    closeMobileMenu();
+  }
+});
+
+// ========== NAVIGATION ==========
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function activateMenu(btn){
+  document.querySelectorAll('.menu-items button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ========== FULL FARM ANIMATION ==========
+const homeCanvas = document.getElementById('homeCanvas');
+const ctx = homeCanvas.getContext('2d');
+
+let sun = {x:0, y:0, r:80, angle:0};
+let clouds = [];
+let plants = [];
+let tractor = {x:-200, y:0, w:120, h:42, speed:1.6, wheelAngle:0};
+let birds = [];
+
+function resizeCanvas() {
+  homeCanvas.width = homeCanvas.clientWidth;
+  homeCanvas.height = Math.max(420, Math.round(window.innerHeight * 0.45));
+}
+window.addEventListener('resize', () => { resizeCanvas(); initScene(); });
+resizeCanvas();
+
+function initScene() {
+  sun.x = homeCanvas.width * 0.18;
+  sun.y = homeCanvas.height * 0.28;
+  sun.r = Math.max(60, Math.min(120, Math.round(homeCanvas.height*0.16)));
+  
+  clouds = [];
+  for(let i = 0; i < 6; i++) {
+    clouds.push({
+      x: Math.random() * homeCanvas.width, 
+      y: 30 + Math.random() * (homeCanvas.height * 0.22), 
+      s: 0.4 + Math.random() * 1.1, 
+      scale: 0.8 + Math.random() * 1.2
+    });
+  }
+  
+  plants = [];
+  const count = Math.max(8, Math.floor(homeCanvas.width / 80));
+  for(let i = 0; i < count; i++) {
+    const x = 30 + i * (homeCanvas.width - 60) / count;
+    plants.push({x: x, y: homeCanvas.height - 26, height: 0, target: 60 + Math.random() * 120});
+  }
+  
+  tractor.x = -150 - Math.random() * 200;
+  tractor.y = homeCanvas.height - 60;
+  
+  birds = [];
+  for(let i = 0; i < 6; i++) {
+    birds.push({
+      x: Math.random() * 600, 
+      y: 40 + Math.random() * 140, 
+      vx: 1 + Math.random() * 1.2, 
+      flap: Math.random() * 4
+    });
+  }
+}
+initScene();
+
+function drawSun() {
+  const g = ctx.createRadialGradient(sun.x, sun.y, sun.r * 0.2, sun.x, sun.y, sun.r * 1.8);
+  g.addColorStop(0, '#FFF59D');
+  g.addColorStop(0.5, '#FFD54F');
+  g.addColorStop(1, 'rgba(255,200,80,0.06)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(sun.x, sun.y, sun.r, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.save();
+  ctx.translate(sun.x, sun.y);
+  sun.angle += 0.002;
+  for(let i = 0; i < 12; i++) {
+    const a = sun.angle + i * (Math.PI * 2 / 12);
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * (sun.r * 0.9), Math.sin(a) * (sun.r * 0.9));
+    ctx.lineTo(Math.cos(a) * (sun.r * 1.6), Math.sin(a) * (sun.r * 1.6));
+    ctx.strokeStyle = 'rgba(255,235,155,0.35)';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawCloud(c) {
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  const baseR = 22 * c.scale;
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, baseR, 0, Math.PI * 2);
+  ctx.arc(c.x + baseR * 0.9, c.y - 6 * c.scale, baseR * 0.9, 0, Math.PI * 2);
+  ctx.arc(c.x + baseR * 1.8, c.y, baseR * 0.8, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawPlants() {
+  ctx.fillStyle = '#0FA46A';
+  plants.forEach(p => {
+    if(p.height < p.target) p.height += 0.6;
+    ctx.fillRect(p.x - 4, p.y - p.height, 8, p.height);
+    ctx.beginPath();
+    ctx.ellipse(p.x - 10, p.y - p.height + 18, 12, 6, -0.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(p.x + 10, p.y - p.height + 28, 12, 6, 0.5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+function drawTractorWithTrailer() {
+  ctx.fillStyle = '#d35400';
+  ctx.fillRect(tractor.x, tractor.y - 28, tractor.w, 28);
+  ctx.fillStyle = '#ffb870';
+  ctx.fillRect(tractor.x + tractor.w - 44, tractor.y - 40, 36, 18);
+  
+  const trailerX = tractor.x + tractor.w + 8;
+  const trailerW = 120;
+  const trailerH = 30;
+  ctx.fillStyle = '#8b5e3c';
+  ctx.fillRect(trailerX, tractor.y - trailerH, trailerW, trailerH);
+  ctx.fillStyle = 'rgba(0,0,0,0.12)';
+  ctx.fillRect(trailerX + 6, tractor.y - trailerH + 6, trailerW - 12, trailerH - 12);
+  
+  const wheelR = 14;
+  const wx1 = tractor.x + 24;
+  const wx2 = tractor.x + tractor.w - 30;
+  const wx3 = trailerX + 24;
+  const wx4 = trailerX + trailerW - 30;
+  
+  [wx1, wx2, wx3, wx4].forEach(wx => {
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(wx, tractor.y - 4, wheelR, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 2;
+  [wx1, wx2, wx3, wx4].forEach(wx => {
+    ctx.beginPath();
+    ctx.moveTo(wx, tractor.y - 4);
+    ctx.lineTo(wx + Math.cos(tractor.wheelAngle) * wheelR, tractor.y - 4 + Math.sin(tractor.wheelAngle) * wheelR);
+    ctx.stroke();
+  });
+}
+
+function drawBarn() {
+  const bx = 40, by = homeCanvas.height - 120;
+  ctx.fillStyle = '#8a1f1f';
+  ctx.fillRect(bx, by, 140, 90);
+  ctx.fillStyle = '#5a0f0f';
+  ctx.beginPath();
+  ctx.moveTo(bx - 10, by);
+  ctx.lineTo(bx + 70, by - 50);
+  ctx.lineTo(bx + 150, by);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#3a1a1a';
+  ctx.fillRect(bx + 52, by + 30, 36, 60);
+}
+
+function drawWindmill() {
+  const x = homeCanvas.width - 140, y = homeCanvas.height - 140;
+  ctx.fillStyle = 'rgba(120,120,120,0.9)';
+  ctx.fillRect(x, y - 120, 8, 120);
+  ctx.save();
+  ctx.translate(x + 4, y - 120);
+  ctx.rotate(Date.now() / 2000);
+  ctx.fillStyle = '#fff7cc';
+  for(let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(4, -40);
+    ctx.lineTo(-6, -34);
+    ctx.closePath();
+    ctx.fill();
+    ctx.rotate(Math.PI / 2);
+  }
+  ctx.restore();
+}
+
+function drawBird(b) {
+  ctx.save();
+  ctx.translate(b.x, b.y);
+  const wing = Math.sin(b.flap) * 6;
+  ctx.strokeStyle = 'rgba(20,30,20,0.9)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-8, 0);
+  ctx.quadraticCurveTo(0, -wing, 10, 0);
+  ctx.quadraticCurveTo(0, wing, -8, 0);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function animateHome() {
+  resizeCanvas();
+  ctx.clearRect(0, 0, homeCanvas.width, homeCanvas.height);
+
+  const sky = ctx.createLinearGradient(0, 0, 0, homeCanvas.height);
+  sky.addColorStop(0, '#FFFCE6');
+  sky.addColorStop(0.18, '#FFE6B3');
+  sky.addColorStop(0.5, '#CDEFF9');
+  sky.addColorStop(1, '#9FD3FF');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, homeCanvas.width, homeCanvas.height);
+
+  sun.x += 0.1;
+  if(sun.x > homeCanvas.width + 80) sun.x = -80;
+  sun.y += Math.sin(Date.now() / 8000) * 0.15;
+  drawSun();
+
+  clouds.forEach((c, i) => {
+    drawCloud(c);
+    c.x += c.s * (i % 2 ? 1.0 : 0.45);
+    if(c.x > homeCanvas.width + 160) c.x = -180 - Math.random() * 160;
+  });
+
+  drawBarn();
+  drawWindmill();
+
+  birds.forEach(b => {
+    drawBird(b);
+    b.x += b.vx;
+    if(b.x > homeCanvas.width + 40) b.x = -40;
+    b.flap += 0.25;
+  });
+
+  ctx.fillStyle = '#0e6b3b';
+  ctx.fillRect(0, homeCanvas.height - 60, homeCanvas.width, 80);
+
+  ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+  ctx.lineWidth = 1;
+  for(let f = 0; f < 6; f++) {
+    ctx.beginPath();
+    const y = homeCanvas.height - 50 + f * 6;
+    ctx.moveTo(0, y);
+    for(let x = 0; x <= homeCanvas.width; x += 24) {
+      ctx.lineTo(x, y + Math.sin((x / 40) + Date.now() / 3000 + f) * 4);
+    }
+    ctx.stroke();
+  }
+
+  drawPlants();
+  plants.forEach(p => {
+    if(Math.random() < 0.02) {
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillRect(p.x - 2, p.y - p.height + 6, 2, 2);
+    }
+  });
+
+  tractor.x += tractor.speed;
+  tractor.wheelAngle += 0.25;
+  if(tractor.x > homeCanvas.width + 200) tractor.x = -260;
+  drawTractorWithTrailer();
+
+  requestAnimationFrame(animateHome);
+}
+
+// ========== LANGUAGE SYSTEM ==========
+const translations = {
+  en: {
+    title: "AI Sustainability Dashboard",
+    heroTitle: "Smart Farm AI Pro",
+    heroSubtitle: "Practical advice for farmers — crops, soil, pests, livestock.",
+    ctaChat: "Chat with AgriBot",
+    ctaAnalyze: "Analyze Farm",
+    chatTitle: "AgriBot Help",
+    chatPlaceholder: "Ask about crops, soil, pests...",
+    sendLabel: "Send",
+    soil: ["Red Soil", "Black Soil", "Clay Soil"],
+    climate: ["Low Rainfall", "Medium Rainfall", "High Rainfall"],
+    crops: ["Groundnut", "Cotton", "Paddy"],
+    risk: ["Drought Risk", "Normal", "Flood Risk"],
+    labels: ["Carbon Score", "Recommended Crop", "Estimated Profit", "Climate Risk"]
+  },
+  ta: {
+    title: "AI நிலைத்தன்மை டாஷ்போர்டு",
+    heroTitle: "Smart Farm AI Pro",
+    heroSubtitle: "உழவர்களுக்கான நடைமுறை ஆலோசனைகள் — பயிர்கள், மண், பூச்சிகள், கால்நடை.",
+    ctaChat: "AgriBot உடன் சாட்",
+    ctaAnalyze: "பண்ணை பகுப்பாய்வு",
+    chatTitle: "AgriBot உதவி",
+    chatPlaceholder: "பயிர்கள், மண், பூச்சிகள் பற்றி கேளுங்கள்...",
+    sendLabel: "அனுப்பு",
+    soil: ["சிவப்பு மண்", "கருப்பு மண்", "களிமண்"],
+    climate: ["குறைந்த மழை", "மிதமான மழை", "அதிக மழை"],
+    crops: ["வேர்க்கடலை", "பருத்தி", "நெல்"],
+    risk: ["வறட்சி அபாயம்", "சாதாரணம்", "வெள்ள அபாயம்"],
+    labels: ["கார்பன் மதிப்பு", "பரிந்துரைக்கப்பட்ட பயிர்", "மதிப்பிடப்பட்ட லாபம்", "காலநிலை அபாயம்"]
+  },
+  hi: {
+    title: "एआई सततता डैशबोर्ड",
+    heroTitle: "Smart Farm AI Pro",
+    heroSubtitle: "किसानों के लिए सलाह — फसलें, मिट्टी, कीट, पशु.",
+    ctaChat: "AgriBot से चैट",
+    ctaAnalyze: "खेत विश्लेषण",
+    chatTitle: "AgriBot सहायता",
+    chatPlaceholder: "फसलों, मिट्टी, कीटों के बारे में पूछें...",
+    sendLabel: "भेजें",
+    soil: ["लाल मिट्टी", "काली मिट्टी", "चिकनी मिट्टी"],
+    climate: ["कम वर्षा", "मध्यम वर्षा", "अधिक वर्षा"],
+    crops: ["मूंगफली", "कपास", "धान"],
+    risk: ["सूखा जोखिम", "सामान्य", "बाढ़ जोखिम"],
+    labels: ["कार्बन स्कोर", "सुझाई गई फसल", "अनुमानित लाभ", "जलवायु जोखिम"]
+  }
+};
+
+function changeLanguage() {
+  const lang = document.getElementById("language").value;
+  const t = translations[lang];
+  
+  document.getElementById("title").textContent = t.title;
+  document.getElementById("heroTitle").textContent = t.heroTitle;
+  document.getElementById("heroSubtitle").textContent = t.heroSubtitle;
+  document.getElementById("chatBtn").textContent = t.ctaChat;
+  document.getElementById("analyzeBtnHero").textContent = t.ctaAnalyze;
+  document.getElementById("analyzeBtn").textContent = t.ctaAnalyze;
+  document.getElementById("helpTitle").textContent = t.chatTitle;
+  document.getElementById("chatInput").placeholder = t.chatPlaceholder;
+  document.getElementById("chatSend").textContent = t.sendLabel;
+  
+  const soilSelect = document.getElementById("soilSelect");
+  const climateSelect = document.getElementById("climateSelect");
+  soilSelect.innerHTML = "";
+  climateSelect.innerHTML = "";
+  t.soil.forEach((s, i) => soilSelect.innerHTML += `<option value="${i}">${s}</option>`);
+  t.climate.forEach((c, i) => climateSelect.innerHTML += `<option value="${i}">${c}</option>`);
+  
+  const labels = t.labels;
+  document.getElementById('carbonLabel').textContent = labels[0];
+  document.getElementById('cropLabel').textContent = labels[1];
+  document.getElementById('profitLabel').textContent = labels[2];
+  document.getElementById('riskLabel').textContent = labels[3];
+  
+  const soilIdx = soilSelect.value || 0;
+  const climateIdx = climateSelect.value || 0;
+  document.getElementById('crop').textContent = t.crops[soilIdx];
+  document.getElementById('risk').textContent = t.risk[climateIdx];
+}
+
+function animateBar(id, end) {
+  const bar = document.getElementById(id);
+  let width = 0;
+  const interval = setInterval(() => {
+    width += 2;
+    if (width >= end) {
+      width = end;
+      clearInterval(interval);
+    }
+    bar.style.width = width + '%';
+    if (id === 'profit') {
+      bar.textContent = (width < 10 ? '0' + Math.floor(width) : Math.floor(width)) + '%';
+    } else {
+      bar.textContent = Math.floor(width);
+    }
+  }, 20);
+}
+
+function analyze() {
+  const lang = document.getElementById("language").value;
+  const t = translations[lang];
+  const soil = parseInt(document.getElementById("soilSelect").value || 0);
+  const climate = parseInt(document.getElementById("climateSelect").value || 0);
+  
+  const carbon = Math.min((3 + soil + climate / 2) * 10, 100);
+  const profit = Math.min(50 + (soil * 8) - (climate * 4), 100);
+  
+  animateBar("carbon", carbon);
+  animateBar("profit", profit);
+  
+  document.getElementById("crop").textContent = t.crops[soil];
+  document.getElementById("risk").textContent = t.risk[climate];
+  
+  const chartCanvas = document.getElementById("chart");
+  const chartCtx = chartCanvas.getContext('2d');
+  if (window.chartInstance) {
+    window.chartInstance.destroy();
+  }
+  window.chartInstance = new Chart(chartCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ["Carbon", "Remaining"],
+      datasets: [{
+        data: [carbon, 100 - carbon],
+        backgroundColor: ["rgba(255,255,255,0.8)", "rgba(255,255,255,0.2)"],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// ========== PERFECT WORKING AGRIBOT CHAT ==========
+const chatContainer = document.getElementById("chatContainer");
+const chatInput = document.getElementById("chatInput");
+const chatSend = document.getElementById("chatSend");
+
+// Message display function
+function addChatMessage(text, isUser) {
+  const msg = document.createElement('div');
+  msg.className = `msg ${isUser ? 'user' : 'bot'}`;
+  msg.innerHTML = `
+    <div class="avatar ${isUser ? 'user' : 'bot'}">${isUser ? '👨‍🌾' : '🤖'}</div>
+    <div class="bubble">${isUser ? 'நீங்கள்: ' : 'AgriBot: '}${text}</div>
+  `;
+  chatContainer.appendChild(msg);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+  return msg;
+}
+
+// AgriBot Brain - Real farming knowledge
+const agriBotBrain = {
+  soil: {
+    ta: "🧪 **மண் சோதனை**: சிவப்பு மண் → வேர்க்கடலை (pH 6-7 சிறந்தது). கருப்பு மண் → பருத்தி/நெல். NPK சோதனை செய்யுங்கள். 2கேஜி புழுக்கரு/தாவரம் சேர்க்கவும்.",
+    en: "🧪 **Soil Test**: Red soil → Groundnut (pH 6-7). Black soil → Cotton/Paddy. Test NPK. Add 2kg vermicompost/plant."
+  },
+  pest: {
+    ta: "🦟 **பூச்சி மருந்து**: வேப்பெண்ணெய் 5ml + 1L தண்ணி = வாரத்திற்கு 1 ஸ்ப்ரே. தொற்று இலைகளை உடனே கழற்றுங்கள்.",
+    en: "🦟 **Pest Control**: Neem oil 5ml + 1L water = weekly spray. Remove infected leaves immediately."
+  },
+  water: {
+    ta: "💧 **நீர் பாய்ச்சல்**: காலை 6-8 மணி சிறந்தது. டிரிப் irrigation 60% தண்ணி சேமிக்கும். 2\" மண் உலர்ந்தால் மட்டும் தண்ணி.",
+    en: "💧 **Watering**: 6-8AM best. Drip saves 60% water. Water only when 2\" soil is dry."
+  }
+};
+
+function getAgriBotAnswer(text, lang = 'ta') {
+  const lowerText = text.toLowerCase();
+  
+  if (lowerText.includes('மண்') || lowerText.includes('soil')) return agriBotBrain.soil[lang];
+  if (lowerText.includes('பூச்சி') || lowerText.includes('pest')) return agriBotBrain.pest[lang];
+  if (lowerText.includes('தண்ணி') || lowerText.includes('water')) return agriBotBrain.water[lang];
+  
+  return lang === 'ta' ? 
+    "🌱 **கேளுங்கள்**: மண், பூச்சி, தண்ணி, உரம்? உதாரணம்: 'மண் சோதனை?'" : 
+    "🌱 **Ask**: soil, pest, water? Example: 'soil test?'";
+}
+
+// 🔥 PERFECTLY WORKING CLICK HANDLER
+function setupChat() {
+  // Clear old listeners
+  chatSend.onclick = null;
+  chatInput.onkeypress = null;
+  
+  // NEW USER MESSAGE HANDLER
+  chatSend.onclick = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const text = chatInput.value.trim();
+    if (!text) return;
+    
+    // Add user message
+    addChatMessage(text, true);
+    chatInput.value = '';
+    
+    // Typing indicator
+    const typingMsg = addChatMessage("அலைத்துகிறேன்... ⏳", false);
+    
+    // Get answer after delay
+    setTimeout(() => {
+      chatContainer.removeChild(typingMsg);
+      const lang = document.getElementById("language").value || 'ta';
+      const answer = getAgriBotAnswer(text, lang);
+      addChatMessage(answer, false);
+    }, 1000);
+  };
+  
+  // Enter key support
+  chatInput.onkeypress = function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      chatSend.click();
+    }
+  };
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  setupChat();
+});
+
+// Also setup when language changes
+document.getElementById('language').addEventListener('change', setupChat);
+
+// ========== INITIALIZE ==========
+changeLanguage();
+animateHome();
+</script>
+</body>
+</html>
